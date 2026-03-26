@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma do Projeto</title>
+    <!-- Importando a folha de estilos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Importando a fonte Inter do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Cronograma do Projeto - Fase de Desenvolvimento</h1>
+    </header>
+
+    <div class="gantt-wrapper">
+        <div class="gantt-chart" id="ganttChart">
+            <!-- Linhas verticais de grade serão injetadas aqui -->
+            <div class="grid-container" id="gridContainer"></div>
+            
+            <!-- Eixo do tempo com as datas -->
+            <div class="timeline-axis" id="timelineAxis"></div>
+            
+            <!-- Barras das tarefas -->
+            <div class="tasks-container" id="tasksContainer"></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Atividade</th>
+                    <th>Responsável</th>
+                    <th>Início</th>
+                    <th>Fim</th>
+                    <th>Duração</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Linhas da tabela inseridas via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Importando o script JS no final do body -->
+<script src="script.js"></script>
+</body>
+</html>
