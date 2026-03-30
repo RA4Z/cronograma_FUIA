@@ -43,16 +43,18 @@ function calcHealthScore(tasks) {
 function loadState() {
     try {
         const s = localStorage.getItem('fuia-v2');
-        if (s) return JSON.parse(s);
-    } catch { }
-    return null;
+        return s ? JSON.parse(s) : null;
+    } catch (e) {
+        console.warn("LocalStorage bloqueado pelo navegador.", e);
+        return null;
+    }
 }
 
 function saveState(s) {
     try {
         localStorage.setItem('fuia-v2', JSON.stringify(s));
     } catch (e) {
-        console.error("Erro ao salvar no LocalStorage (possível bloqueio do navegador):", e);
+        console.error("Não foi possível salvar (Prevenção de Rastreamento ativa):", e);
     }
 }
 

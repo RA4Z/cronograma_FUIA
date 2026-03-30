@@ -168,33 +168,30 @@ function ProjectModal({ project, onSave, onClose }) {
 function App() {
     const { useState, useEffect, useMemo } = React;
 
-    const [initialState] = useState(() => {
-        const s = loadState();
-        if (s && s.projects && s.projects.length > 0) return s;
-
-        // Se não houver save, gera os padrões UMA ÚNICA VEZ
-        const defaultProjs = defaultProjects();
+    const [state, setState] = useState(() => {
+        const saved = loadState();
+        if (saved && saved.projects && saved.projects.length > 0) {
+            return saved;
+        }
+        const initialProjs = defaultProjects();
         return {
-            projects: defaultProjs,
-            activeProjId: defaultProjs[0].id,
-            activity: [newActivity('Projeto iniciado', 'FUIA — Plataforma Principal carregado', 'gabriel')]
+            projects: initialProjs,
+            activeProjId: initialProjs[0].id,
+            activity: [newActivity('Projeto iniciado', 'FUIA carregado', 'gabriel')],
+            theme: localStorage.getItem('fuia-theme') || 'dark'
         };
     });
+    const [projects, setProjects]         = useState(state.projects);
+    const [activeProjId, setActiveProjId] = useState(state.activeProjId);
+    const [activity, setActivity]         = useState(state.activity);
+    const [theme, setTheme]               = useState(state.theme);
 
-    const [theme, setTheme] = useState(() => localStorage.getItem('fuia-theme') || 'dark');
-    const [projects, setProjects] = useState(() => { const s = loadState(); return s?.projects || defaultProjects(); });
-    const [activeProjId, setActiveProjId] = useState(() => { const s = loadState(); return s?.activeProjId || defaultProjects()[0]?.id; });
     const [tab, setTab] = useState('gantt');
     const [hoverId, setHoverId] = useState(null);
     const [editTask, setEditTask] = useState(null);
     const [editProject, setEditProject] = useState(null);
     const [showNewProject, setShowNewProject] = useState(false);
     const [showNewTask, setShowNewTask] = useState(false);
-    const [activity, setActivity] = useState(() => {
-        const s = loadState();
-        return s?.activity || [newActivity('Projeto iniciado', 'FUIA — Plataforma Principal carregado', 'gabriel')];
-    });
-
     const activeProj = projects.find(p => p.id === activeProjId) || projects[0];
 
     useEffect(() => {
