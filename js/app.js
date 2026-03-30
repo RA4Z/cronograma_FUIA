@@ -3,16 +3,16 @@
 function TaskModal({ task, members, onSave, onDelete, onClose }) {
     const [form, setForm] = React.useState({
         atividade: task?.atividade || '',
-        resp:      task?.resp      || members[0]?.name  || '',
+        resp: task?.resp || members[0]?.name || '',
         respColor: task?.respColor || members[0]?.color || 'gabriel',
-        inicio:    task?.inicio    || fmtDate(new Date()),
-        fim:       task?.fim       || fmtDate(addDays(new Date(), 7)),
-        progress:  task?.progress  ?? 0,
-        status:    task?.status    || 'pending',
-        notes:     task?.notes     || '',
+        inicio: task?.inicio || fmtDate(new Date()),
+        fim: task?.fim || fmtDate(addDays(new Date(), 7)),
+        progress: task?.progress ?? 0,
+        status: task?.status || 'pending',
+        notes: task?.notes || '',
     });
 
-    const set   = (k, v) => setForm(f => ({ ...f, [k]: v }));
+    const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const isNew = !task?.id;
 
     return (
@@ -73,7 +73,7 @@ function TaskModal({ task, members, onSave, onDelete, onClose }) {
                                     data-s={s.id}
                                     onClick={() => {
                                         set('status', s.id);
-                                        if (s.id === 'done')    set('progress', 100);
+                                        if (s.id === 'done') set('progress', 100);
                                         if (s.id === 'pending') set('progress', 0);
                                     }}>{s.label}</button>
                             ))}
@@ -108,12 +108,12 @@ function TaskModal({ task, members, onSave, onDelete, onClose }) {
 
 function ProjectModal({ project, onSave, onClose }) {
     const [form, setForm] = React.useState({
-        name:        project?.name        || '',
+        name: project?.name || '',
         description: project?.description || '',
-        color:       project?.color       || 'gabriel',
-        members:     project?.members     || [],
+        color: project?.color || 'gabriel',
+        members: project?.members || [],
     });
-    const set   = (k, v) => setForm(f => ({ ...f, [k]: v }));
+    const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const isNew = !project?.id;
 
     return (
@@ -168,16 +168,29 @@ function ProjectModal({ project, onSave, onClose }) {
 function App() {
     const { useState, useEffect, useMemo } = React;
 
-    const [theme, setTheme]               = useState(() => localStorage.getItem('fuia-theme') || 'dark');
-    const [projects, setProjects]         = useState(() => { const s = loadState(); return s?.projects || defaultProjects(); });
+    const [initialState] = useState(() => {
+        const s = loadState();
+        if (s && s.projects && s.projects.length > 0) return s;
+
+        // Se não houver save, gera os padrões UMA ÚNICA VEZ
+        const defaultProjs = defaultProjects();
+        return {
+            projects: defaultProjs,
+            activeProjId: defaultProjs[0].id,
+            activity: [newActivity('Projeto iniciado', 'FUIA — Plataforma Principal carregado', 'gabriel')]
+        };
+    });
+
+    const [theme, setTheme] = useState(() => localStorage.getItem('fuia-theme') || 'dark');
+    const [projects, setProjects] = useState(() => { const s = loadState(); return s?.projects || defaultProjects(); });
     const [activeProjId, setActiveProjId] = useState(() => { const s = loadState(); return s?.activeProjId || defaultProjects()[0]?.id; });
-    const [tab, setTab]                   = useState('gantt');
-    const [hoverId, setHoverId]           = useState(null);
-    const [editTask, setEditTask]         = useState(null);
-    const [editProject, setEditProject]   = useState(null);
+    const [tab, setTab] = useState('gantt');
+    const [hoverId, setHoverId] = useState(null);
+    const [editTask, setEditTask] = useState(null);
+    const [editProject, setEditProject] = useState(null);
     const [showNewProject, setShowNewProject] = useState(false);
-    const [showNewTask, setShowNewTask]       = useState(false);
-    const [activity, setActivity]         = useState(() => {
+    const [showNewTask, setShowNewTask] = useState(false);
+    const [activity, setActivity] = useState(() => {
         const s = loadState();
         return s?.activity || [newActivity('Projeto iniciado', 'FUIA — Plataforma Principal carregado', 'gabriel')];
     });
@@ -248,18 +261,18 @@ function App() {
         if (!activeProj) return { total: 0, done: 0, inProg: 0, avg: 0 };
         const tasks = activeProj.tasks;
         return {
-            total:  tasks.length,
-            done:   tasks.filter(t => t.status === 'done').length,
+            total: tasks.length,
+            done: tasks.filter(t => t.status === 'done').length,
             inProg: tasks.filter(t => t.status === 'in-progress').length,
-            avg:    tasks.length ? Math.round(tasks.reduce((a, t) => a + t.progress, 0) / tasks.length) : 0,
+            avg: tasks.length ? Math.round(tasks.reduce((a, t) => a + t.progress, 0) / tasks.length) : 0,
         };
     }, [activeProj]);
 
     const TABS = [
-        { id: 'gantt',     label: '📅 Cronograma' },
-        { id: 'progress',  label: '🔵 Progresso' },
+        { id: 'gantt', label: '📅 Cronograma' },
+        { id: 'progress', label: '🔵 Progresso' },
         { id: 'analytics', label: '📊 Análise' },
-        { id: 'activity',  label: '⚡ Atividade' },
+        { id: 'activity', label: '⚡ Atividade' },
     ];
 
     return (
@@ -275,7 +288,7 @@ function App() {
                     <div className="sidebar-section">Cronogramas</div>
                     <div className="project-list">
                         {projects.map(p => {
-                            const c      = colorById(p.color);
+                            const c = colorById(p.color);
                             const health = calcHealthScore(p.tasks);
                             const hColor = health >= 75 ? '#34d399' : health >= 50 ? '#fbbf24' : '#f87171';
                             return (
@@ -319,9 +332,9 @@ function App() {
                     </div>
                     <div className="topbar-right">
                         {[
-                            { val: stats.total,    lbl: 'Etapas' },
-                            { val: stats.done,     lbl: 'Concluídas' },
-                            { val: stats.inProg,   lbl: 'Andamento' },
+                            { val: stats.total, lbl: 'Etapas' },
+                            { val: stats.done, lbl: 'Concluídas' },
+                            { val: stats.inProg, lbl: 'Andamento' },
                             { val: `${stats.avg}%`, lbl: 'Progresso' },
                         ].map(s => (
                             <div key={s.lbl} className="stat-pill">
@@ -382,12 +395,12 @@ function App() {
                                     <div className="empty-icon">🎯</div>
                                     <div className="empty-title">Sem etapas</div>
                                     <div className="empty-sub">Adicione etapas ao projeto para ver o progresso</div>
-                                  </div>
+                                </div>
                                 : <div className="prog-grid">
                                     {activeProj.tasks.map(task => (
                                         <ProgCard key={task.id} task={task} onEdit={setEditTask} />
                                     ))}
-                                  </div>
+                                </div>
                             }
                         </div>
                     )}

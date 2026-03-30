@@ -10,11 +10,11 @@ function diffDays(a, b) {
 }
 
 function fmtShort(d) {
-    return `${d.getDate()} ${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][d.getMonth()]}`;
+    return `${d.getDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getMonth()]}`;
 }
 
 function fmtDate(d) {
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
 function addDays(d, n) {
@@ -44,12 +44,16 @@ function loadState() {
     try {
         const s = localStorage.getItem('fuia-v2');
         if (s) return JSON.parse(s);
-    } catch {}
+    } catch { }
     return null;
 }
 
 function saveState(s) {
-    try { localStorage.setItem('fuia-v2', JSON.stringify(s)); } catch {}
+    try {
+        localStorage.setItem('fuia-v2', JSON.stringify(s));
+    } catch (e) {
+        console.error("Erro ao salvar no LocalStorage (possível bloqueio do navegador):", e);
+    }
 }
 
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
@@ -60,8 +64,8 @@ function newActivity(action, detail, color = 'gabriel') {
 
 function timeAgo(iso) {
     const diff = (Date.now() - new Date(iso)) / 1000;
-    if (diff < 60)    return 'Agora mesmo';
-    if (diff < 3600)  return `${Math.floor(diff / 60)}min atrás`;
+    if (diff < 60) return 'Agora mesmo';
+    if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
     return `${Math.floor(diff / 86400)}d atrás`;
 }
