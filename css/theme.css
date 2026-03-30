@@ -1,126 +1,102 @@
-/* =====================================================
-   THEME.CSS — Tema Claro e Escuro
-   ===================================================== */
+/* ── THEME / COLOR CLASSES ── */
 
-[data-theme="light"] {
-    --bg-base:     #f0f2f7;
-    --bg-surface:  #ffffff;
-    --bg-elevated: #f8fafc;
-    --bg-hover:    #f1f5f9;
+/* Color bar gradients */
+.c-gabriel  { background: linear-gradient(105deg, #4f7dff 0%, #1a3be8 100%); box-shadow: 0 2px 16px rgba(79, 125, 255, .45) }
+.c-robert   { background: linear-gradient(105deg, #c084fc 0%, #7c2d9f 100%); box-shadow: 0 2px 16px rgba(192, 132, 252, .4) }
+.c-green    { background: linear-gradient(105deg, #34d399 0%, #059669 100%); box-shadow: 0 2px 16px rgba(52, 211, 153, .4) }
+.c-orange   { background: linear-gradient(105deg, #fb923c 0%, #c2410c 100%); box-shadow: 0 2px 16px rgba(251, 146, 60, .4) }
+.c-rose     { background: linear-gradient(105deg, #fb7185 0%, #be123c 100%); box-shadow: 0 2px 16px rgba(251, 113, 133, .4) }
+.c-cyan     { background: linear-gradient(105deg, #22d3ee 0%, #0e7490 100%); box-shadow: 0 2px 16px rgba(34, 211, 238, .4) }
+.c-yellow   { background: linear-gradient(105deg, #fbbf24 0%, #b45309 100%); box-shadow: 0 2px 16px rgba(251, 191, 36, .4) }
+.c-indigo   { background: linear-gradient(105deg, #818cf8 0%, #4338ca 100%); box-shadow: 0 2px 16px rgba(129, 140, 248, .4) }
 
-    --sidebar-bg:  #ffffff;
-
-    --text-primary:   #0f172a;
-    --text-secondary: #334155;
-    --text-muted:     #64748b;
-
-    --border-color: #e2e8f0;
-    --border-subtle: rgba(0,0,0,0.04);
-
-    --accent:        #3b6bfa;
-    --accent-subtle: #dde8ff;
-    --accent-dark:   #2347c5;
-
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-    --shadow-lg: 0 12px 32px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
-    --shadow-xl: 0 24px 48px rgba(0,0,0,0.14);
-
-    --grid-line-color: rgba(100,116,139,0.2);
-    --highlight-row:   #f0f6ff;
-    --bar-shadow: 0 2px 8px rgba(59,107,250,0.25);
-
-    /* Progresso */
-    --progress-track: #e2e8f0;
-    --progress-label: #334155;
-
-    /* Tabela */
-    --table-header-bg: #f8fafc;
-    --table-row-hover: #f5f8ff;
-    --table-stripe: rgba(248,250,252,0.6);
-
-    /* Modal */
-    --modal-overlay: rgba(15,23,42,0.5);
-    --modal-bg: #ffffff;
-
-    /* Badge de status */
-    --status-pending:     #f1f5f9; --status-pending-text:     #475569;
-    --status-in-progress: #fef3c7; --status-in-progress-text: #92400e;
-    --status-done:        #d1fae5; --status-done-text:        #065f46;
-    --status-blocked:     #fee2e2; --status-blocked-text:     #991b1b;
+/* ── BADGES ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: var(--r-full);
+    font-size: .7rem;
+    font-weight: 700
 }
 
-[data-theme="dark"] {
-    --bg-base:     #0b0f1a;
-    --bg-surface:  #111827;
-    --bg-elevated: #1a2232;
-    --bg-hover:    #1e2a3a;
-
-    --sidebar-bg:  #0e1420;
-
-    --text-primary:   #f0f4ff;
-    --text-secondary: #c4cfe0;
-    --text-muted:     #6b7fa0;
-
-    --border-color:  rgba(255,255,255,0.08);
-    --border-subtle: rgba(255,255,255,0.04);
-
-    --accent:        #5a8aff;
-    --accent-subtle: rgba(90,138,255,0.15);
-    --accent-dark:   #3b6bfa;
-
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
-    --shadow-xl: 0 24px 60px rgba(0,0,0,0.6);
-
-    --grid-line-color: rgba(255,255,255,0.06);
-    --highlight-row:   rgba(90,138,255,0.08);
-    --bar-shadow: 0 2px 12px rgba(90,138,255,0.3);
-
-    /* Progresso */
-    --progress-track: rgba(255,255,255,0.1);
-    --progress-label: #c4cfe0;
-
-    /* Tabela */
-    --table-header-bg: #0e1420;
-    --table-row-hover: rgba(90,138,255,0.06);
-    --table-stripe: rgba(255,255,255,0.02);
-
-    /* Modal */
-    --modal-overlay: rgba(0,0,6,0.7);
-    --modal-bg: #111827;
-
-    /* Badge de status */
-    --status-pending:     rgba(71,85,105,0.3); --status-pending-text:     #94a3b8;
-    --status-in-progress: rgba(217,119,6,0.2); --status-in-progress-text: #fbbf24;
-    --status-done:        rgba(16,185,129,0.2); --status-done-text:        #34d399;
-    --status-blocked:     rgba(239,68,68,0.2); --status-blocked-text:     #f87171;
-
-    /* Cores dos responsáveis — mais vibrantes no dark */
-    --color-gabriel-light: rgba(59,107,250,0.2);
-    --color-gabriel-text:  #93b4ff;
-
-    --color-robert-light: rgba(147,51,234,0.2);
-    --color-robert-text:  #c084fc;
-
-    --color-todos-light: rgba(5,150,105,0.2);
-    --color-todos-text:  #34d399;
+.badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .7
 }
 
-/* Transição suave de tema */
-body,
-.sidebar,
-.page-header,
-.section-card,
-.card-header,
-table thead,
-tbody tr,
-.modal,
-.progress-card,
-.stat-chip {
-    transition:
-        background-color 350ms cubic-bezier(0.16,1,0.3,1),
-        border-color     350ms cubic-bezier(0.16,1,0.3,1),
-        color            350ms cubic-bezier(0.16,1,0.3,1);
+/* Dark mode badge colors */
+.b-gabriel { background: rgba(79, 125, 255, .18);  color: #93b4ff }
+.b-robert  { background: rgba(192, 132, 252, .18); color: #d8b4fe }
+.b-green   { background: rgba(52, 211, 153, .18);  color: #6ee7b7 }
+.b-orange  { background: rgba(251, 146, 60, .18);  color: #fdba74 }
+.b-rose    { background: rgba(251, 113, 133, .18); color: #fda4af }
+.b-cyan    { background: rgba(34, 211, 238, .18);  color: #67e8f9 }
+.b-yellow  { background: rgba(251, 191, 36, .18);  color: #fde68a }
+.b-indigo  { background: rgba(129, 140, 248, .18); color: #c7d2fe }
+
+/* Light mode badge colors */
+[data-theme="light"] .b-gabriel { background: rgba(59, 107, 250, .1);  color: #1d4ed8 }
+[data-theme="light"] .b-robert  { background: rgba(147, 51, 234, .1);  color: #7e22ce }
+[data-theme="light"] .b-green   { background: rgba(5, 150, 105, .1);   color: #047857 }
+[data-theme="light"] .b-orange  { background: rgba(194, 65, 12, .1);   color: #c2410c }
+[data-theme="light"] .b-rose    { background: rgba(190, 18, 60, .1);   color: #be123c }
+[data-theme="light"] .b-cyan    { background: rgba(14, 116, 144, .1);  color: #0e7490 }
+[data-theme="light"] .b-yellow  { background: rgba(180, 83, 9, .1);    color: #b45309 }
+[data-theme="light"] .b-indigo  { background: rgba(67, 56, 202, .1);   color: #4338ca }
+
+/* ── STATUS BADGES ── */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: var(--r-full);
+    font-size: .68rem;
+    font-weight: 700;
+    white-space: nowrap
 }
+
+.s-pending     { background: rgba(100, 116, 139, .15); color: #94a3b8 }
+.s-in-progress { background: rgba(245, 158, 11, .18);  color: #fbbf24 }
+.s-done        { background: rgba(52, 211, 153, .18);  color: #34d399 }
+.s-blocked     { background: rgba(239, 68, 68, .18);   color: #f87171 }
+
+[data-theme="light"] .s-pending     { background: rgba(71, 85, 105, .1);   color: #475569 }
+[data-theme="light"] .s-in-progress { background: rgba(217, 119, 6, .12);  color: #b45309 }
+[data-theme="light"] .s-done        { background: rgba(5, 150, 105, .12);  color: #047857 }
+[data-theme="light"] .s-blocked     { background: rgba(220, 38, 38, .12);  color: #b91c1c }
+
+/* Color picker swatches */
+.color-grid { display: flex; gap: 8px; flex-wrap: wrap }
+
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform .15s, border-color .15s
+}
+
+.color-swatch:hover { transform: scale(1.15) }
+.color-swatch.selected { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 0 2px var(--accent) }
+
+/* Activity log */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border)
+}
+
+.activity-item:last-child { border-bottom: none }
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px }
+.activity-text { font-size: .8rem; color: var(--text-2); line-height: 1.4; flex: 1 }
+.activity-time { font-size: .65rem; color: var(--text-3); flex-shrink: 0; margin-top: 3px }

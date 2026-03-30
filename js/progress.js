@@ -1,165 +1,229 @@
-// =====================================================
-// PROGRESS.JS — Cards de Progresso e Modal
-// =====================================================
+// ─── COMPONENT: ProgCard ─────────────────────────────────────────────────────
 
-const RING_RADIUS = 54;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+const RING_R = 46;
+const CIRC   = 2 * Math.PI * RING_R;
 
-function renderProgressGrid() {
-    const grid = document.getElementById('progressGrid');
-    grid.innerHTML = '';
+const STROKE_COLORS = {
+    gabriel: '#4f7dff', robert: '#c084fc', green: '#34d399',
+    orange:  '#fb923c', rose:   '#fb7185', cyan:  '#22d3ee',
+    yellow:  '#fbbf24', indigo: '#818cf8',
+};
 
-    parsedData.forEach(task => {
-        const state    = progressState[task.index];
-        const progress = state.progress;
-        const status   = state.status;
-        const offset   = RING_CIRCUMFERENCE * (1 - progress / 100);
+function ProgCard({ task, onEdit }) {
+    const prog   = task.progress;
+    const offset = CIRC * (1 - prog / 100);
+    const color  = colorById(task.respColor || 'gabriel');
+    const st     = statusById(task.status);
+    const dur    = diffDays(parseDate(task.inicio), parseDate(task.fim));
+    const sc     = STROKE_COLORS[color.id] || '#4f7dff';
 
-        const card = document.createElement('div');
-        card.className = `progress-card ${task.colorClass}`;
-        card.setAttribute('data-index', task.index);
+    return (
+        <div className="prog-card" style={{ '--card-color': sc }} onClick={() => onEdit(task)}>
+            {/* Top accent line */}
+            <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+                background: `linear-gradient(90deg,${sc},${sc}99)`,
+                borderRadius: 'var(--r-xl) var(--r-xl) 0 0'
+            }} />
 
-        card.innerHTML = `
-            <div class="card-top">
-                <p class="card-activity">${task.atividade}</p>
-                <span class="card-pct ${task.colorClass}" id="cpct-${task.index}">${progress}%</span>
+            <div className="pc-header">
+                <p className="pc-name">{task.atividade}</p>
+                <span className="pc-pct" style={{ color: sc }}>{prog}%</span>
             </div>
 
-            <div class="ring-container">
-                <div class="ring-wrapper">
-                    <svg class="progress-ring-svg" width="128" height="128" viewBox="0 0 128 128">
-                        <circle class="progress-ring-track" cx="64" cy="64" r="${RING_RADIUS}"/>
-                        <circle class="progress-ring-fill ${task.colorClass}"
-                                id="ring-${task.index}"
-                                cx="64" cy="64" r="${RING_RADIUS}"
-                                stroke-dasharray="${RING_CIRCUMFERENCE}"
-                                stroke-dashoffset="${offset}"/>
+            {/* Ring chart */}
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+                <div style={{ position: 'relative', display: 'inline-flex' }}>
+                    <svg className="ring-svg" width={110} height={110} viewBox="0 0 110 110">
+                        <circle className="ring-track" cx={55} cy={55} r={RING_R} stroke="var(--border)" />
+                        <circle className="ring-fill"  cx={55} cy={55} r={RING_R}
+                            stroke={sc}
+                            strokeDasharray={CIRC}
+                            strokeDashoffset={offset} />
                     </svg>
-                    <div class="ring-center-text">
-                        <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--text-primary);line-height:1;" id="ring-pct-${task.index}">${progress}%</div>
-                        <div style="font-size:0.65rem;color:var(--text-muted);font-weight:500;margin-top:2px;">${task.duracao}d</div>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-1)', lineHeight: 1 }}>{prog}%</div>
+                        <div style={{ fontSize: '.6rem', color: 'var(--text-3)', marginTop: 2 }}>{dur}d</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-bar-track">
-                <div class="card-bar-fill ${task.colorClass}" id="cbf-${task.index}" style="width:${progress}%"></div>
+            <div className="pc-bar-track">
+                <div className={`pc-bar-fill ${color.cls}`} style={{ width: `${prog}%` }} />
             </div>
 
-            <div class="card-meta">
+            <div className="pc-meta">
                 <div>
-                    <span class="badge ${task.colorClass}" style="font-size:0.68rem;">${task.resp}</span>
-                    <div class="card-dates" style="margin-top:5px;">${task.inicio} → ${task.fim}</div>
+                    <span className={`badge ${color.badge}`} style={{ fontSize: '.65rem' }}>{task.resp}</span>
+                    <div className="pc-dates" style={{ marginTop: 4 }}>{task.inicio} → {task.fim}</div>
                 </div>
-                <div>
-                    <span class="status-badge ${status}" id="csb-${task.index}">${getStatusLabel(status)}</span>
-                    <div class="card-edit-hint" style="text-align:right;margin-top:4px;">✏ Editar</div>
+                <div style={{ textAlign: 'right' }}>
+                    <span className={`status-badge ${st.cls}`}>{st.label}</span>
+                    <div className="pc-edit-hint" style={{ marginTop: 4 }}>✏ Editar</div>
                 </div>
             </div>
-        `;
-
-        card.addEventListener('click', () => openModal(task.index));
-        grid.appendChild(card);
-    });
+        </div>
+    );
 }
 
-function updateProgressCard(index) {
-    const state    = progressState[index];
-    const progress = state.progress;
-    const status   = state.status;
-    const offset   = RING_CIRCUMFERENCE * (1 - progress / 100);
+// ─── COMPONENT: AnalyticsView ─────────────────────────────────────────────────
 
-    const ring     = document.getElementById(`ring-${index}`);
-    const ringPct  = document.getElementById(`ring-pct-${index}`);
-    const cardPct  = document.getElementById(`cpct-${index}`);
-    const barFill  = document.getElementById(`cbf-${index}`);
-    const statusBg = document.getElementById(`csb-${index}`);
+function AnalyticsView({ project }) {
+    const { tasks, members } = project;
+    const health  = calcHealthScore(tasks);
+    const avgProg = tasks.length ? Math.round(tasks.reduce((a, t) => a + t.progress, 0) / tasks.length) : 0;
+    const done    = tasks.filter(t => t.status === 'done').length;
+    const blocked = tasks.filter(t => t.status === 'blocked').length;
+    const inProg  = tasks.filter(t => t.status === 'in-progress').length;
 
-    if (ring)     ring.style.strokeDashoffset = offset;
-    if (ringPct)  ringPct.textContent = `${progress}%`;
-    if (cardPct)  cardPct.textContent = `${progress}%`;
-    if (barFill)  barFill.style.width = `${progress}%`;
-    if (statusBg) {
-        statusBg.className   = `status-badge ${status}`;
-        statusBg.textContent = getStatusLabel(status);
-    }
-}
+    const healthColor = health >= 75 ? '#34d399' : health >= 50 ? '#fbbf24' : '#f87171';
 
-// ===========================
-// MODAL
-// ===========================
-let modalCurrentIndex = null;
-
-function openModal(index) {
-    const task  = parsedData[index];
-    const state = progressState[index];
-
-    modalCurrentIndex = index;
-
-    document.getElementById('modalTaskName').textContent = task.atividade;
-    document.getElementById('progressSlider').value     = state.progress;
-    document.getElementById('sliderValue').textContent  = `${state.progress}%`;
-
-    // Atualizar status buttons
-    document.querySelectorAll('.status-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-status') === state.status);
+    const memberStats = members.map(m => {
+        const myTasks = tasks.filter(t => t.resp === m.name || (m.name === 'Todos' && t.resp === 'Todos'));
+        const myProg  = myTasks.length ? Math.round(myTasks.reduce((a, t) => a + t.progress, 0) / myTasks.length) : 0;
+        return { ...m, taskCount: myTasks.length, avgProg: myProg };
     });
 
-    document.getElementById('modalOverlay').classList.add('active');
-}
+    const statusDist = STATUS_OPTS.map(s => ({
+        ...s, count: tasks.filter(t => t.status === s.id).length,
+    }));
 
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-    modalCurrentIndex = null;
-}
+    return (
+        <div className="analytics-grid">
+            {/* Health card */}
+            <div className="glass-card">
+                <div className="card-head">
+                    <div>
+                        <div className="card-title">Saúde do Projeto</div>
+                        <div className="card-sub">Score calculado automaticamente</div>
+                    </div>
+                </div>
+                <div className="card-body health-score">
+                    <div style={{ fontSize: '.72rem', color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em' }}>Score</div>
+                    <div className="health-num" style={{ color: healthColor }}>{health}</div>
+                    <div className="health-label" style={{ color: healthColor }}>
+                        {health >= 75 ? 'Excelente' : health >= 50 ? 'Atenção' : 'Crítico'}
+                    </div>
+                    <div className="health-bar">
+                        <div className="health-fill" style={{ width: `${health}%`, background: `linear-gradient(90deg,${healthColor}88,${healthColor})` }} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginTop: 16 }}>
+                        {[
+                            { l: 'Total',      v: tasks.length, c: 'var(--text-2)' },
+                            { l: 'Concluídas', v: done,         c: '#34d399' },
+                            { l: 'Andamento',  v: inProg,       c: '#fbbf24' },
+                            { l: 'Bloqueadas', v: blocked,      c: '#f87171' },
+                        ].map(x => (
+                            <div key={x.l} style={{ textAlign: 'center', background: 'var(--bg-glass)', borderRadius: 'var(--r-md)', padding: '10px 4px' }}>
+                                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 800, color: x.c }}>{x.v}</div>
+                                <div style={{ fontSize: '.62rem', color: 'var(--text-3)', marginTop: 2 }}>{x.l}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
-function saveModal() {
-    if (modalCurrentIndex === null) return;
+            {/* Team card */}
+            <div className="glass-card">
+                <div className="card-head">
+                    <div>
+                        <div className="card-title">Equipe</div>
+                        <div className="card-sub">Progresso por membro</div>
+                    </div>
+                </div>
+                <div className="card-body">
+                    {memberStats.length === 0 && (
+                        <div style={{ color: 'var(--text-3)', fontSize: '.82rem', textAlign: 'center', padding: '20px 0' }}>
+                            Nenhum membro adicionado
+                        </div>
+                    )}
+                    {memberStats.map(m => {
+                        const c = colorById(m.color);
+                        return (
+                            <div key={m.name} className="team-row">
+                                <div className="team-avatar" style={{ background: c.hex + '33', border: `2px solid ${c.hex}44` }}>
+                                    <span style={{ color: c.hex, fontWeight: 800 }}>{m.name.charAt(0)}</span>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div className="team-name">{m.name}</div>
+                                    <div className="team-tasks">{m.taskCount} tarefas · {m.avgProg}% médio</div>
+                                </div>
+                                <div className="team-prog">
+                                    <div className="prog-track" style={{ flex: 1 }}>
+                                        <div className={`prog-fill ${c.cls}`} style={{ width: `${m.avgProg}%` }} />
+                                    </div>
+                                    <span className="prog-pct">{m.avgProg}%</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
 
-    const progress = +document.getElementById('progressSlider').value;
-    const statusBtn = document.querySelector('.status-btn.active');
-    const status    = statusBtn ? statusBtn.getAttribute('data-status') : 'pending';
+            {/* Status distribution card */}
+            <div className="glass-card">
+                <div className="card-head">
+                    <div><div className="card-title">Distribuição de Status</div></div>
+                </div>
+                <div className="card-body">
+                    {statusDist.map(s => (
+                        <div key={s.id} style={{ marginBottom: 14 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                                <span className={`status-badge ${s.cls}`}>{s.label}</span>
+                                <span style={{ fontSize: '.8rem', fontWeight: 700, color: 'var(--text-2)' }}>{s.count}</span>
+                            </div>
+                            <div className="prog-track" style={{ height: 8 }}>
+                                <div style={{
+                                    height: '100%', borderRadius: 'var(--r-full)',
+                                    width: tasks.length ? `${(s.count / tasks.length) * 100}%` : '0%',
+                                    background: s.id === 'done' ? '#34d399' : s.id === 'in-progress' ? '#fbbf24' : s.id === 'blocked' ? '#f87171' : '#475569',
+                                    transition: 'width .8s var(--ease-out)'
+                                }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-    progressState[modalCurrentIndex] = { progress, status };
-    saveProgressState(progressState);
-
-    // Atualizar tudo
-    updateProgressCard(modalCurrentIndex);
-    updateTableRow(modalCurrentIndex);
-    updateGanttBar(modalCurrentIndex);
-    updateHeaderStats();
-
-    closeModal();
-}
-
-function initModal() {
-    const slider   = document.getElementById('progressSlider');
-    const overlay  = document.getElementById('modalOverlay');
-
-    slider.addEventListener('input', function () {
-        document.getElementById('sliderValue').textContent = `${this.value}%`;
-    });
-
-    document.querySelectorAll('.status-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            // Auto-fill slider baseado no status
-            const autoMap = { pending: 0, 'in-progress': null, done: 100, blocked: null };
-            const auto    = autoMap[this.getAttribute('data-status')];
-            if (auto !== null) {
-                slider.value = auto;
-                document.getElementById('sliderValue').textContent = `${auto}%`;
-            }
-        });
-    });
-
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    document.getElementById('modalCancel').addEventListener('click', closeModal);
-    document.getElementById('modalSave').addEventListener('click', saveModal);
-
-    overlay.addEventListener('click', e => {
-        if (e.target === overlay) closeModal();
-    });
+            {/* Overall progress card */}
+            <div className="glass-card">
+                <div className="card-head">
+                    <div>
+                        <div className="card-title">Progresso Geral</div>
+                        <div className="card-sub">Média ponderada das etapas</div>
+                    </div>
+                </div>
+                <div className="card-body" style={{ textAlign: 'center', paddingTop: 30 }}>
+                    <div style={{ fontSize: '4rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
+                        {avgProg}%
+                    </div>
+                    <div style={{ fontSize: '.75rem', color: 'var(--text-3)', margin: '8px 0 20px' }}>Concluído até agora</div>
+                    <div className="health-bar" style={{ height: 14 }}>
+                        <div className="health-fill" style={{ width: `${avgProg}%`, background: 'linear-gradient(90deg,#4f7dff,#9b5de5)' }} />
+                    </div>
+                    {tasks.length > 0 && (
+                        <div style={{ marginTop: 20, textAlign: 'left' }}>
+                            {tasks.map(t => {
+                                const c = colorById(t.respColor || 'gabriel');
+                                return (
+                                    <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: c.hex, flexShrink: 0 }} />
+                                        <span style={{ fontSize: '.72rem', color: 'var(--text-2)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {t.atividade}
+                                        </span>
+                                        <div className="prog-track" style={{ width: 80, flexShrink: 0 }}>
+                                            <div className={`prog-fill ${c.cls}`} style={{ width: `${t.progress}%` }} />
+                                        </div>
+                                        <span style={{ fontSize: '.7rem', fontWeight: 700, color: 'var(--text-3)', width: 30, textAlign: 'right' }}>
+                                            {t.progress}%
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }

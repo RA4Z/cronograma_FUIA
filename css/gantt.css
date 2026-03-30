@@ -1,186 +1,125 @@
-/* =====================================================
-   GANTT.CSS — Gráfico de Gantt
-   ===================================================== */
+/* ── GANTT ── */
+.gantt-wrap { overflow-x: auto; padding: 22px 22px 16px }
+.gantt-inner { min-width: 700px; position: relative }
 
-.gantt-wrapper {
-    overflow-x: auto;
-    padding: var(--sp-xl);
-    padding-top: 3.5rem; /* espaço para os labels de data */
+.gantt-axis { position: relative; height: 2px; background: var(--border); margin-bottom: 20px }
+.gantt-axis-line {
+    position: absolute; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent) 20%, var(--accent) 80%, transparent);
+    width: 100%
 }
 
-.gantt-chart {
-    min-width: 800px;
-    position: relative;
-    padding-bottom: var(--sp-md);
-}
+.gtick { position: absolute; top: -8px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center }
 
-/* GRADE */
-.grid-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.grid-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--grid-line-color);
-    border: none;
-}
-
-/* EIXO DO TEMPO */
-.timeline-axis {
-    position: relative;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--border-color) 5%, var(--border-color) 95%, transparent);
-    margin-bottom: 1.5rem;
-    z-index: 2;
-}
-
-.timeline-tick {
-    position: absolute;
-    top: -7px;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.tick-dot {
-    width: 14px;
-    height: 14px;
+.gtick-dot {
+    width: 16px; height: 16px;
     background: var(--accent);
     border-radius: 50%;
-    border: 3px solid var(--bg-surface);
-    box-shadow: 0 0 0 1px var(--accent);
-    z-index: 3;
-    transition: background-color var(--transition-slow);
+    border: 3px solid var(--bg-void);
+    box-shadow: 0 0 10px var(--accent-glow);
+    z-index: 2;
+    transition: background .3s
 }
 
-.tick-label {
+.gtick-label {
     position: absolute;
-    bottom: 18px;
-    font-size: 0.7rem;
+    bottom: 22px;
+    font-size: .62rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-3);
     white-space: nowrap;
-    transform: rotate(-35deg);
+    transform: rotate(-38deg);
     transform-origin: right bottom;
-    letter-spacing: 0.02em;
+    letter-spacing: .02em
 }
 
-/* CONTAINER DE TAREFAS */
-.tasks-container {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    position: relative;
-    z-index: 5;
-}
+.gantt-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1 }
+.gantt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); opacity: .6 }
 
-/* LINHA DE TAREFA */
-.task-row {
-    height: 46px;
-    position: relative;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-base);
-    cursor: default;
-}
+.gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, #f59e0b, transparent); z-index: 4 }
 
-.task-row:hover,
-.task-row.highlighted {
-    background-color: var(--highlight-row);
-}
-
-/* BARRA */
-.task-bar {
+.today-label {
     position: absolute;
-    height: 78%;
-    top: 11%;
-    border-radius: var(--radius-md);
+    top: -22px;
+    transform: translateX(-50%);
+    font-size: .6rem;
+    font-weight: 700;
+    color: #f59e0b;
+    white-space: nowrap;
+    background: rgba(245, 158, 11, .15);
+    padding: 1px 6px;
+    border-radius: var(--r-full);
+    border: 1px solid rgba(245, 158, 11, .3)
+}
+
+.tasks-area { display: flex; flex-direction: column; gap: 5px; position: relative; z-index: 5 }
+
+.task-row {
+    height: 44px;
+    position: relative;
+    border-radius: var(--r-md);
+    transition: background .15s;
+    cursor: pointer
+}
+
+.task-row:hover { background: rgba(255, 255, 255, .04) }
+
+/* THE BAR */
+.tbar {
+    position: absolute;
+    height: 76%;
+    top: 12%;
+    border-radius: var(--r-md);
     display: flex;
     align-items: center;
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: visible;
-    box-shadow: var(--bar-shadow);
-    cursor: pointer;
-    transition: transform var(--transition-base), filter var(--transition-base), box-shadow var(--transition-base);
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .3);
+    transition: transform .2s var(--ease-out), box-shadow .2s, filter .2s;
+    cursor: pointer
 }
 
-/* TEXTO DA BARRA */
-.task-text-inner {
+.task-row:hover .tbar,
+.task-row.hl .tbar {
+    transform: scaleY(1.08) translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .4);
+    filter: brightness(1.12);
+    z-index: 10
+}
+
+/* Progress overlay on bar */
+.bar-done-layer {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: rgba(255, 255, 255, .25);
+    border-radius: inherit;
+    transition: width .6s var(--ease-out);
+    pointer-events: none
+}
+
+.bar-todo-layer {
+    position: absolute; top: 0; height: 100%;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(0, 0, 0, .18) 3px, rgba(0, 0, 0, .18) 6px);
+    transition: left .6s var(--ease-out), width .6s var(--ease-out);
+    pointer-events: none
+}
+
+.bar-text-in {
     padding: 0 10px;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .4)
 }
 
-.task-text-outer {
+.bar-text-out {
     position: absolute;
     left: calc(100% + 8px);
-    color: var(--text-secondary);
+    font-size: .72rem;
     font-weight: 600;
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-/* HOVER NA BARRA */
-.task-row:hover .task-bar,
-.task-row.highlighted .task-bar {
-    transform: scaleY(1.08) translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    filter: brightness(1.08);
-    z-index: 10;
-}
-
-/* INDICADOR DE PROGRESSO NA BARRA */
-.bar-progress-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    border-radius: inherit;
-    background: rgba(255,255,255,0.22);
-    pointer-events: none;
-    transition: width 0.5s var(--ease-out);
-}
-
-.bar-progress-striped {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 4px,
-        rgba(0,0,0,0.1) 4px,
-        rgba(0,0,0,0.1) 8px
-    );
-    pointer-events: none;
-    border-radius: inherit;
-    transition: width 0.5s var(--ease-out);
-}
-
-/* CORES DAS BARRAS */
-.bg-gabriel {
-    background: linear-gradient(105deg, #4f84ff, #2347c5);
-}
-
-.bg-robert {
-    background: linear-gradient(105deg, #a855f7, #7e22ce);
-}
-
-.bg-todos {
-    background: linear-gradient(105deg, #10b981, #047857);
+    color: var(--text-2);
+    white-space: nowrap
 }

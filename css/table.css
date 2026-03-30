@@ -1,163 +1,57 @@
-/* =====================================================
-   TABLE.CSS — Tabela de Tarefas
-   ===================================================== */
+/* ── TABLE ── */
+.tbl { width: 100%; border-collapse: collapse; font-size: .85rem }
 
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
+.tbl th {
+    padding: 10px 16px;
     text-align: left;
-    font-size: 0.875rem;
-}
-
-thead th {
-    background: var(--table-header-bg);
-    color: var(--text-muted);
+    font-size: .62rem;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    padding: var(--sp-md) var(--sp-lg);
-    border-bottom: 1px solid var(--border-color);
+    letter-spacing: .08em;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
+    background: var(--bg-glass)
 }
 
-thead th:first-child { padding-left: var(--sp-xl); }
-thead th:last-child  { padding-right: var(--sp-xl); }
+.tbl td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-2); vertical-align: middle }
+.tbl tr:last-child td { border-bottom: none }
+.tbl tr { transition: background .15s; cursor: pointer }
+.tbl tr:hover td, .tbl tr.hl td { background: var(--bg-glass-hover) }
+.tbl td:first-child { font-weight: 600; color: var(--text-1) }
 
-tbody tr {
-    border-bottom: 1px solid var(--border-subtle);
-    transition: background-color var(--transition-fast);
-    cursor: default;
-}
+/* Inline progress bar in table */
+.inline-prog { display: flex; align-items: center; gap: 8px; min-width: 130px }
 
-tbody tr:hover,
-tbody tr.highlighted {
-    background-color: var(--table-row-hover);
-}
+.prog-track { flex: 1; height: 6px; background: var(--border); border-radius: var(--r-full); overflow: hidden; position: relative }
 
-tbody tr:last-child { border-bottom: none; }
-
-tbody tr:nth-child(even) {
-    background-color: var(--table-stripe);
-}
-
-tbody tr:nth-child(even):hover,
-tbody tr:nth-child(even).highlighted {
-    background-color: var(--table-row-hover);
-}
-
-td {
-    padding: 12px var(--sp-lg);
-    vertical-align: middle;
-    color: var(--text-secondary);
-}
-
-td:first-child {
-    font-weight: 600;
-    color: var(--text-primary);
-    padding-left: var(--sp-xl);
-}
-
-td:last-child { padding-right: var(--sp-xl); }
-
-/* Célula de progresso na tabela */
-.td-progress {
-    min-width: 140px;
-}
-
-.table-progress-wrap {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-sm);
-}
-
-.table-progress-bar {
-    flex: 1;
-    height: 6px;
-    background: var(--progress-track);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-}
-
-.table-progress-fill {
+.prog-fill {
     height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 0.5s var(--ease-out);
+    border-radius: var(--r-full);
+    transition: width .6s var(--ease-out);
+    position: relative
 }
 
-.table-progress-pct {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
-}
-
-/* Botão Editar Progresso */
-.edit-progress-btn {
-    background: none;
-    border: 1px solid var(--border-color);
-    color: var(--text-muted);
-    border-radius: var(--radius-sm);
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-weight: 500;
-    transition: all var(--transition-fast);
-    margin-left: var(--sp-xs);
-}
-
-.edit-progress-btn:hover {
-    background: var(--accent-subtle);
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
-/* Status badges */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 9px;
-    border-radius: var(--radius-full);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-}
-
-.status-badge::before {
+.prog-fill::after {
     content: '';
-    display: block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    opacity: 0.7;
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 50%;
+    background: rgba(255, 255, 255, .3);
+    border-radius: inherit
 }
 
-.status-badge.pending {
-    background: var(--status-pending);
-    color: var(--status-pending-text);
+.prog-pct { font-size: .72rem; font-weight: 700; color: var(--text-2); width: 34px; text-align: right; flex-shrink: 0 }
+
+/* Analytics / Team rows */
+.team-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border) }
+.team-row:last-child { border-bottom: none }
+
+.team-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: .8rem; color: #fff; flex-shrink: 0
 }
 
-.status-badge.in-progress {
-    background: var(--status-in-progress);
-    color: var(--status-in-progress-text);
-}
-
-.status-badge.done {
-    background: var(--status-done);
-    color: var(--status-done-text);
-}
-
-.status-badge.blocked {
-    background: var(--status-blocked);
-    color: var(--status-blocked-text);
-}
+.team-name { font-size: .85rem; font-weight: 600; color: var(--text-1); flex: 1 }
+.team-tasks { font-size: .72rem; color: var(--text-3) }
+.team-prog { display: flex; align-items: center; gap: 8px; min-width: 100px }

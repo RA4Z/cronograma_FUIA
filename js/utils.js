@@ -1,81 +1,87 @@
-// =====================================================
-// UTILS.JS — Funções Auxiliares
-// =====================================================
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
 
-function parseDate(dateStr) {
-    const [dia, mes, ano] = dateStr.split('/');
-    return new Date(+ano, +mes - 1, +dia);
+function parseDate(s) {
+    const [d, m, y] = s.split('/');
+    return new Date(+y, +m - 1, +d);
 }
 
-function diffDays(date1, date2) {
-    return Math.ceil(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+function diffDays(a, b) {
+    return Math.ceil(Math.abs(b - a) / (864e5));
 }
 
-function formatShortDate(date) {
-    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    return `${date.getDate()} ${meses[date.getMonth()]}`;
+function fmtShort(d) {
+    return `${d.getDate()} ${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][d.getMonth()]}`;
 }
 
-function formatFullDate(date) {
-    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    return `${date.getDate()} ${meses[date.getMonth()]} ${date.getFullYear()}`;
+function fmtDate(d) {
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 }
 
-function getResponsavelClass(resp) {
-    if (resp.includes('Robert')) return 'robert';
-    if (resp.includes('Todos'))  return 'todos';
-    return 'gabriel';
+function addDays(d, n) {
+    const r = new Date(d);
+    r.setDate(r.getDate() + n);
+    return r;
 }
 
-function getStatusLabel(status) {
-    const map = {
-        'pending':     'Pendente',
-        'in-progress': 'Em Andamento',
-        'done':        'Concluído',
-        'blocked':     'Bloqueado',
-    };
-    return map[status] || status;
-}
-
-function getProgressColor(colorClass) {
-    const map = {
-        'gabriel': getComputedStyle(document.documentElement).getPropertyValue('--color-gabriel').trim() || '#3b6bfa',
-        'robert':  getComputedStyle(document.documentElement).getPropertyValue('--color-robert').trim()  || '#9333ea',
-        'todos':   getComputedStyle(document.documentElement).getPropertyValue('--color-todos').trim()   || '#059669',
-    };
-    return map[colorClass] || '#3b6bfa';
-}
-
-// Preprocessar os dados uma vez
-function buildParsedData() {
-    return PROJECT_DATA.map((item, index) => {
-        const dataInicio = parseDate(item.inicio);
-        const dataFim    = parseDate(item.fim);
-        return {
-            ...item,
-            id:         `task-${index}`,
-            index,
-            dataInicio,
-            dataFim,
-            duracao:    diffDays(dataInicio, dataFim),
-            colorClass: getResponsavelClass(item.resp),
-        };
+function calcHealthScore(tasks) {
+    if (!tasks.length) return 0;
+    const today = new Date();
+    let score = 100;
+    tasks.forEach(t => {
+        const end = parseDate(t.fim);
+        const daysLate = (today - end) / 864e5;
+        if (t.status === 'blocked') score -= 15;
+        if (t.status !== 'done' && daysLate > 0) score -= Math.min(daysLate * 2, 20);
     });
+    const avgProg = tasks.reduce((a, t) => a + t.progress, 0) / tasks.length;
+    score = score * 0.6 + avgProg * 0.4;
+    return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-const parsedData = buildParsedData();
+// ─── LOCAL STORAGE ────────────────────────────────────────────────────────────
 
-// Calcular limites do eixo temporal
-const minDate = new Date(Math.min(...parsedData.map(d => d.dataInicio)));
-const maxDate = new Date(Math.max(...parsedData.map(d => d.dataFim)));
-minDate.setDate(minDate.getDate() - 3);
-maxDate.setDate(maxDate.getDate() + 8);
-const totalDuration = maxDate - minDate;
+function loadState() {
+    try {
+        const s = localStorage.getItem('fuia-v2');
+        if (s) return JSON.parse(s);
+    } catch {}
+    return null;
+}
 
-// Datas únicas para marcadores do eixo
-const uniqueDatesMap = new Map();
-parsedData.forEach(task => {
-    uniqueDatesMap.set(task.dataInicio.getTime(), task.dataInicio);
-    uniqueDatesMap.set(task.dataFim.getTime(),    task.dataFim);
-});
-const uniqueDates = Array.from(uniqueDatesMap.values()).sort((a, b) => a - b);
+function saveState(s) {
+    try { localStorage.setItem('fuia-v2', JSON.stringify(s)); } catch {}
+}
+
+// ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
+
+function newActivity(action, detail, color = 'gabriel') {
+    return { id: uid(), action, detail, color, time: new Date().toISOString() };
+}
+
+function timeAgo(iso) {
+    const diff = (Date.now() - new Date(iso)) / 1000;
+    if (diff < 60)    return 'Agora mesmo';
+    if (diff < 3600)  return `${Math.floor(diff / 60)}min atrás`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
+    return `${Math.floor(diff / 86400)}d atrás`;
+}
+
+// ─── GANTT CALC ───────────────────────────────────────────────────────────────
+
+function buildGanttMeta(tasks) {
+    if (!tasks.length) return null;
+    const dates = tasks.flatMap(t => [parseDate(t.inicio), parseDate(t.fim)]);
+    const minD = new Date(Math.min(...dates));
+    const maxD = new Date(Math.max(...dates));
+    minD.setDate(minD.getDate() - 3);
+    maxD.setDate(maxD.getDate() + 8);
+    const totalMs = maxD - minD;
+
+    const uniqueMap = new Map();
+    tasks.forEach(t => {
+        [parseDate(t.inicio), parseDate(t.fim)].forEach(d => uniqueMap.set(d.getTime(), d));
+    });
+    const ticks = Array.from(uniqueMap.values()).sort((a, b) => a - b);
+
+    return { minD, maxD, totalMs, ticks };
+}

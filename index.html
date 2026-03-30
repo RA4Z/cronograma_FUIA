@@ -1,194 +1,503 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUIA — Cronograma do Projeto</title>
+    <title>FUIA — Gerenciador de Cronogramas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- CSS modules -->
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/gantt.css">
     <link rel="stylesheet" href="css/table.css">
     <link rel="stylesheet" href="css/progress.css">
-    <link rel="stylesheet" href="css/theme.css">
+
+    <style>
+        /* ── DESIGN ENHANCEMENTS ─────────────────────────────────────── */
+
+        /* Noise texture overlay for depth */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+        }
+
+        /* Enhanced ambient glows — richer, more layered */
+        .bg-glow-1 {
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, #1a3be8 0%, #4f7dff 30%, transparent 70%);
+            top: -300px;
+            left: -200px;
+            opacity: 0.22;
+            animation: driftA 18s ease-in-out infinite alternate;
+        }
+
+        .bg-glow-2 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #7c2d9f 0%, #c084fc 30%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            opacity: 0.18;
+            animation: driftB 22s ease-in-out infinite alternate;
+        }
+
+        /* Third ambient glow for richness */
+        .bg-glow-3 {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 50%;
+            filter: blur(100px);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #059669 0%, #34d399 40%, transparent 70%);
+            top: 50%;
+            left: 45%;
+            opacity: 0.06;
+            animation: driftC 28s ease-in-out infinite alternate;
+        }
+
+        [data-theme="light"] .bg-glow-1,
+        [data-theme="light"] .bg-glow-2,
+        [data-theme="light"] .bg-glow-3 { opacity: 0.08; }
+
+        @keyframes driftA {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 40px) scale(1.08); }
+        }
+        @keyframes driftB {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-50px, -30px) scale(1.06); }
+        }
+        @keyframes driftC {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -60px) scale(1.12); }
+        }
+
+        /* ── SIDEBAR refinements ── */
+        .sidebar {
+            background: rgba(6, 8, 15, 0.92);
+            border-right: 1px solid rgba(255,255,255,0.07);
+        }
+
+        [data-theme="light"] .sidebar {
+            background: rgba(248, 250, 255, 0.94);
+        }
+
+        /* Brand mark shimmer */
+        .brand-mark {
+            background: linear-gradient(135deg, #4f7dff 0%, #7b5cf6 50%, #9b5de5 100%);
+            box-shadow: 0 4px 20px rgba(79,125,255,.5), 0 0 0 1px rgba(255,255,255,.1) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-mark::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.2) 50%, transparent 60%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+            50%       { transform: translateX(100%) translateY(100%) rotate(30deg); }
+        }
+
+        /* Project items with left indicator */
+        .proj-item {
+            border: 1px solid transparent;
+            transition: all .22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .proj-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleY(0);
+            width: 3px;
+            height: 70%;
+            border-radius: 0 3px 3px 0;
+            background: var(--accent);
+            transition: transform .22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .proj-item.active::before,
+        .proj-item:hover::before { transform: translateY(-50%) scaleY(1); }
+
+        .proj-dot {
+            width: 9px;
+            height: 9px;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Scrollbar styling across the whole app */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }
+        [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); }
+
+        /* ── TOPBAR refinements ── */
+        .topbar {
+            background: rgba(6, 8, 15, 0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 1px 0 rgba(255,255,255,.04), 0 4px 24px rgba(0,0,0,.3);
+        }
+
+        [data-theme="light"] .topbar {
+            background: rgba(248, 250, 255, 0.9);
+            box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+        }
+
+        .topbar-left h1 {
+            background: linear-gradient(135deg, var(--text-1) 0%, var(--text-2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stat pills upgraded */
+        .stat-pill {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--r-lg);
+            padding: 8px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: all .2s;
+        }
+
+        .stat-pill:hover {
+            background: rgba(255,255,255,.07);
+            border-color: rgba(255,255,255,.14);
+            transform: translateY(-1px);
+        }
+
+        .stat-pill::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+        }
+
+        [data-theme="light"] .stat-pill {
+            background: rgba(255,255,255,.8);
+            border-color: rgba(0,0,0,.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+
+        /* ── TABS ── */
+        .tabs {
+            background: rgba(6,8,15,.6);
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            padding: 0 32px;
+        }
+
+        [data-theme="light"] .tabs {
+            background: rgba(248,250,255,.7);
+        }
+
+        .tab-btn {
+            padding: 14px 18px;
+            font-size: .8rem;
+            letter-spacing: .01em;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* ── GLASS CARDS ── */
+        .glass-card {
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.1) 50%, transparent 100%);
+        }
+
+        [data-theme="light"] .glass-card {
+            background: rgba(255,255,255,.75);
+            border-color: rgba(0,0,0,.07);
+            box-shadow: 0 2px 16px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+        }
+
+        /* ── BUTTON upgrades ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #4f7dff 0%, #6b5cf6 100%);
+            box-shadow: 0 2px 16px rgba(79,125,255,.4), 0 0 0 1px rgba(255,255,255,.1) inset;
+            letter-spacing: .01em;
+            transition: all .2s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 24px rgba(79,125,255,.55), 0 0 0 1px rgba(255,255,255,.15) inset;
+            transform: translateY(-2px);
+            opacity: 1;
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-ghost {
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,.1);
+            border-color: rgba(255,255,255,.18);
+        }
+
+        [data-theme="light"] .btn-ghost {
+            background: rgba(0,0,0,.04);
+            border-color: rgba(0,0,0,.1);
+        }
+
+        /* Add project button */
+        .add-proj-btn {
+            background: linear-gradient(135deg, rgba(79,125,255,.08) 0%, rgba(155,93,229,.08) 100%);
+            border: 1px dashed rgba(79,125,255,.35);
+            color: var(--text-3);
+            transition: all .22s;
+        }
+
+        .add-proj-btn:hover {
+            background: linear-gradient(135deg, rgba(79,125,255,.15) 0%, rgba(155,93,229,.15) 100%);
+            border-color: var(--accent);
+            color: var(--text-1);
+            transform: translateY(-1px);
+        }
+
+        /* ── GANTT BAR enhancements ── */
+        .tbar {
+            border-radius: 10px;
+            box-shadow: 0 3px 16px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.08) inset;
+        }
+
+        /* ── PROGRESS CARD enhancements ── */
+        .prog-card {
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.07);
+            transition: all .25s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .prog-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.12);
+            border-color: rgba(255,255,255,.14);
+        }
+
+        [data-theme="light"] .prog-card {
+            background: rgba(255,255,255,.85);
+            border-color: rgba(0,0,0,.07);
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
+        }
+
+        /* ── MODAL upgrades ── */
+        .overlay {
+            background: rgba(0,0,0,.7);
+            backdrop-filter: blur(12px);
+        }
+
+        .modal {
+            background: rgba(10,13,24,.97);
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset, 0 32px 80px rgba(0,0,0,.8);
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(79,125,255,.4), transparent);
+        }
+
+        [data-theme="light"] .modal {
+            background: rgba(255,255,255,.98);
+            box-shadow: 0 32px 80px rgba(0,0,0,.15);
+        }
+
+        .finput {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.09);
+            transition: border-color .15s, background .15s, box-shadow .15s;
+        }
+
+        .finput:focus {
+            border-color: var(--accent);
+            background: rgba(79,125,255,.06);
+            box-shadow: 0 0 0 3px rgba(79,125,255,.12);
+        }
+
+        [data-theme="light"] .finput {
+            background: rgba(0,0,0,.03);
+            border-color: rgba(0,0,0,.1);
+        }
+
+        /* Page-load entry animation */
+        .app {
+            animation: appEntry .5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes appEntry {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sidebar entry */
+        .sidebar {
+            animation: sidebarEntry .45s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes sidebarEntry {
+            from { transform: translateX(-12px); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Content fade-in */
+        .content > * {
+            animation: contentEntry .4s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes contentEntry {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Table row hover glow */
+        .tbl tr:hover td {
+            background: rgba(79,125,255,.05);
+        }
+
+        /* Status badge pulse on active tasks */
+        .s-in-progress {
+            animation: pulseAmber 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseAmber {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+            50%       { box-shadow: 0 0 0 4px rgba(245,158,11,.12); }
+        }
+
+        /* Health bar shimmer */
+        .health-fill::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            left: -60%;
+            width: 50%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+            animation: barShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes barShimmer {
+            0%   { left: -60%; }
+            100% { left: 110%; }
+        }
+
+        /* Custom scrollbar for gantt */
+        .gantt-wrap::-webkit-scrollbar { height: 4px; }
+        .gantt-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,.03); border-radius: 99px; }
+        .gantt-wrap::-webkit-scrollbar-thumb { background: rgba(79,125,255,.3); border-radius: 99px; }
+
+        /* Activity item entrance */
+        .activity-item {
+            transition: background .15s;
+            border-radius: var(--r-sm);
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .activity-item:hover {
+            background: rgba(255,255,255,.04);
+        }
+
+        /* Refined today-line */
+        .gantt-today-line {
+            background: linear-gradient(to bottom, transparent 0%, rgba(245,158,11,.8) 30%, rgba(245,158,11,.8) 70%, transparent 100%);
+        }
+
+        /* Theme button */
+        .theme-btn {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            transition: all .22s;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255,255,255,.09);
+            border-color: rgba(255,255,255,.14);
+            transform: translateY(-1px);
+        }
+
+        /* Color swatch selected ring */
+        .color-swatch.selected {
+            box-shadow: 0 0 0 3px var(--bg-panel), 0 0 0 5px var(--accent), 0 0 16px var(--accent-glow);
+        }
+
+        /* Card title gradient line under card-head */
+        .card-head {
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+        /* Focus ring for all interactive elements */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow-3"></div>
+    <div id="root"></div>
 
-    <div class="noise-overlay"></div>
-
-    <div class="app-shell">
-
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon">F</div>
-                <div class="brand-text">
-                    <span class="brand-name">FUIA</span>
-                    <span class="brand-sub">v1.0 · Dev Phase</span>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-view="gantt">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="4" rx="1" />
-                        <rect x="3" y="11" width="13" height="4" rx="1" />
-                        <rect x="3" y="18" width="16" height="4" rx="1" />
-                    </svg>
-                    Cronograma
-                </a>
-                <a href="#" class="nav-item" data-view="progress">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 3" />
-                    </svg>
-                    Progresso
-                </a>
-            </nav>
-
-            <div class="sidebar-legend">
-                <p class="legend-title">Responsáveis</p>
-                <div class="legend-item">
-                    <span class="legend-dot gabriel"></span>
-                    <span>Gabriel V. M.</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot robert"></span>
-                    <span>Robert A. Z.</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot todos"></span>
-                    <span>Todos</span>
-                </div>
-            </div>
-
-            <div class="sidebar-footer">
-                <button class="theme-toggle" id="themeToggle" title="Alternar tema">
-                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="4" />
-                        <path
-                            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-                    </svg>
-                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                    </svg>
-                    <span class="theme-label">Tema</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
-
-            <!-- HEADER -->
-            <header class="page-header">
-                <div class="header-left">
-                    <p class="header-eyebrow">Fase de Desenvolvimento</p>
-                    <h1 class="header-title">Cronograma do Projeto</h1>
-                </div>
-                <div class="header-stats" id="headerStats">
-                    <!-- Preenchido via JS -->
-                </div>
-            </header>
-
-            <!-- VIEW: GANTT -->
-            <section class="view active" id="view-gantt">
-                <div class="section-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Gráfico de Gantt</h2>
-                        <p class="card-subtitle" id="dateRange">Mar 2026 — Jun 2026</p>
-                    </div>
-                    <div class="gantt-wrapper">
-                        <div class="gantt-chart" id="ganttChart">
-                            <div class="grid-container" id="gridContainer"></div>
-                            <div class="timeline-axis" id="timelineAxis"></div>
-                            <div class="tasks-container" id="tasksContainer"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-card mt-lg">
-                    <div class="card-header">
-                        <h2 class="card-title">Detalhamento das Tarefas</h2>
-                    </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Atividade</th>
-                                    <th>Responsável</th>
-                                    <th>Início</th>
-                                    <th>Fim</th>
-                                    <th>Duração</th>
-                                    <th>Progresso</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- VIEW: PROGRESS -->
-            <section class="view" id="view-progress">
-                <div class="progress-grid" id="progressGrid">
-                    <!-- Preenchido via JS -->
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <!-- MODAL DE PROGRESSO -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal" id="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Editar Progresso</h3>
-                <button class="modal-close" id="modalClose">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-task-name" id="modalTaskName"></p>
-                <div class="slider-container">
-                    <div class="slider-labels">
-                        <span>0%</span>
-                        <span id="sliderValue">50%</span>
-                        <span>100%</span>
-                    </div>
-                    <input type="range" min="0" max="100" value="50" class="progress-slider" id="progressSlider">
-                    <div class="slider-track-fill" id="sliderTrackFill"></div>
-                </div>
-                <div class="modal-status-select">
-                    <label>Status</label>
-                    <div class="status-buttons" id="statusButtons">
-                        <button class="status-btn" data-status="pending">Pendente</button>
-                        <button class="status-btn active" data-status="in-progress">Em Andamento</button>
-                        <button class="status-btn" data-status="done">Concluído</button>
-                        <button class="status-btn" data-status="blocked">Bloqueado</button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="modalCancel">Cancelar</button>
-                <button class="btn-primary" id="modalSave">Salvar</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- JS modules (order matters) -->
     <script src="js/data.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/gantt.js"></script>
-    <script src="js/table.js"></script>
-    <script src="js/progress.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/app.js"></script>
+
+    <script type="text/babel" src="js/theme.js"></script>
+    <script type="text/babel" src="js/gantt.js"></script>
+    <script type="text/babel" src="js/table.js"></script>
+    <script type="text/babel" src="js/progress.js"></script>
+    <script type="text/babel" src="js/app.js"></script>
 </body>
 
 </html>

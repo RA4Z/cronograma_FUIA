@@ -1,67 +1,67 @@
-// =====================================================
-// TABLE.JS — Renderização da Tabela
-// =====================================================
+// ─── COMPONENT: TableView ────────────────────────────────────────────────────
 
-function renderTable() {
-    const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '';
+function TableView({ tasks, onEdit, hoverId, setHoverId }) {
+    if (!tasks.length) return (
+        <div className="card-body">
+            <div className="empty">
+                <div className="empty-icon">📋</div>
+                <div className="empty-title">Nenhuma tarefa cadastrada</div>
+            </div>
+        </div>
+    );
 
-    parsedData.forEach(task => {
-        const state    = progressState[task.index];
-        const progress = state.progress;
-        const status   = state.status;
-
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-target-id', task.id);
-
-        tr.innerHTML = `
-            <td style="font-weight:600;">${task.atividade}</td>
-            <td><span class="badge ${task.colorClass}">${task.resp}</span></td>
-            <td>${task.inicio}</td>
-            <td>${task.fim}</td>
-            <td>${task.duracao} dias</td>
-            <td class="td-progress">
-                <div class="table-progress-wrap">
-                    <div class="table-progress-bar">
-                        <div class="table-progress-fill ${task.colorClass}"
-                             id="tpf-${task.index}"
-                             style="width:${progress}%"></div>
-                    </div>
-                    <span class="table-progress-pct" id="tpp-${task.index}">${progress}%</span>
-                    <button class="edit-progress-btn" data-index="${task.index}">Editar</button>
-                </div>
-                <div style="margin-top:4px;">
-                    <span class="status-badge ${status}" id="tsb-${task.index}">
-                        ${getStatusLabel(status)}
-                    </span>
-                </div>
-            </td>
-        `;
-        tableBody.appendChild(tr);
-    });
-
-    // Botões de editar
-    document.querySelectorAll('.edit-progress-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-            e.stopPropagation();
-            openModal(+btn.getAttribute('data-index'));
-        });
-    });
-}
-
-function updateTableRow(index) {
-    const state    = progressState[index];
-    const progress = state.progress;
-    const status   = state.status;
-
-    const fill  = document.getElementById(`tpf-${index}`);
-    const pct   = document.getElementById(`tpp-${index}`);
-    const badge = document.getElementById(`tsb-${index}`);
-
-    if (fill)  fill.style.width  = `${progress}%`;
-    if (pct)   pct.textContent   = `${progress}%`;
-    if (badge) {
-        badge.className   = `status-badge ${status}`;
-        badge.textContent = getStatusLabel(status);
-    }
+    return (
+        <div style={{ overflowX: 'auto' }}>
+            <table className="tbl">
+                <thead>
+                    <tr>
+                        <th>Etapa</th>
+                        <th>Responsável</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Duração</th>
+                        <th>Progresso</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tasks.map(task => {
+                        const dur   = diffDays(parseDate(task.inicio), parseDate(task.fim));
+                        const color = colorById(task.respColor || 'gabriel');
+                        const st    = statusById(task.status);
+                        const prog  = task.progress;
+                        return (
+                            <tr
+                                key={task.id}
+                                className={hoverId === task.id ? 'hl' : ''}
+                                onMouseEnter={() => setHoverId(task.id)}
+                                onMouseLeave={() => setHoverId(null)}
+                                onClick={() => onEdit(task)}>
+                                <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {task.atividade}
+                                </td>
+                                <td><span className={`badge ${color.badge}`}>{task.resp}</span></td>
+                                <td style={{ whiteSpace: 'nowrap' }}>{task.inicio}</td>
+                                <td style={{ whiteSpace: 'nowrap' }}>{task.fim}</td>
+                                <td>{dur}d</td>
+                                <td>
+                                    <div className="inline-prog">
+                                        <div className="prog-track">
+                                            <div className={`prog-fill ${color.cls}`} style={{ width: `${prog}%` }} />
+                                        </div>
+                                        <span className="prog-pct">{prog}%</span>
+                                    </div>
+                                </td>
+                                <td><span className={`status-badge ${st.cls}`}>{st.label}</span></td>
+                                <td onClick={e => e.stopPropagation()}>
+                                    <button className="btn btn-ghost btn-xs" onClick={() => onEdit(task)}>✏</button>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+    );
 }
