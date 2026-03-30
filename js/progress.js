@@ -4,7 +4,7 @@ const RING_R = 46;
 const CIRC   = 2 * Math.PI * RING_R;
 
 const STROKE_COLORS = {
-    gabriel: '#4f7dff', robert: '#c084fc', green: '#34d399',
+    blue: '#4f7dff', pink: '#c084fc', green: '#34d399',
     orange:  '#fb923c', rose:   '#fb7185', cyan:  '#22d3ee',
     yellow:  '#fbbf24', indigo: '#818cf8',
 };

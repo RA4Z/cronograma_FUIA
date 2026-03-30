@@ -165,26 +165,16 @@ function ProjectModal({ project, onSave, onClose }) {
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
-function App() {
-    const { useState, useEffect, useMemo } = React;
+function App({ initialData }) {
+    const { useState, useEffect, useRef, useMemo } = React;
 
-    const [state, setState] = useState(() => {
-        const saved = loadState();
-        if (saved && saved.projects && saved.projects.length > 0) {
-            return saved;
-        }
-        const initialProjs = defaultProjects();
-        return {
-            projects: initialProjs,
-            activeProjId: initialProjs[0].id,
-            activity: [newActivity('Projeto iniciado', 'FUIA carregado', 'gabriel')],
-            theme: localStorage.getItem('fuia-theme') || 'dark'
-        };
-    });
-    const [projects, setProjects]         = useState(state.projects);
-    const [activeProjId, setActiveProjId] = useState(state.activeProjId);
-    const [activity, setActivity]         = useState(state.activity);
-    const [theme, setTheme]               = useState(state.theme);
+    const isInitialized = useRef(false);
+
+    const [theme, setTheme] = useState(() => localStorage.getItem('fuia-theme') || 'dark');
+
+    const [projects, setProjects] = useState(initialData?.projects || []);
+    const [activeProjId, setActiveProjId] = useState(initialData?.activeProjId || null);
+    const [activity, setActivity] = useState(initialData?.activity || []);
 
     const [tab, setTab] = useState('gantt');
     const [hoverId, setHoverId] = useState(null);
@@ -192,6 +182,7 @@ function App() {
     const [editProject, setEditProject] = useState(null);
     const [showNewProject, setShowNewProject] = useState(false);
     const [showNewTask, setShowNewTask] = useState(false);
+
     const activeProj = projects.find(p => p.id === activeProjId) || projects[0];
 
     useEffect(() => {
@@ -200,7 +191,15 @@ function App() {
     }, [theme]);
 
     useEffect(() => {
+        if (!isInitialized.current) {
+            isInitialized.current = true;
+            console.log("App pronto para uso, mas aguardando primeira alteração para salvar.");
+            return;
+        }
+
+        console.log("Alteração detectada! Enviando para o Python...");
         saveState({ projects, activeProjId, activity });
+
     }, [projects, activeProjId, activity]);
 
     const addActivity = (action, detail, color) =>
@@ -279,8 +278,8 @@ function App() {
                 <div className="sidebar-inner">
                     <div className="brand">
                         <div className="brand-mark">F</div>
-                        <span className="brand-name">FUIA</span>
-                        <span className="brand-ver">v2.0</span>
+                        <span className="brand-name">PCP</span>
+                        <span className="brand-ver">v1.0</span>
                     </div>
                     <div className="sidebar-section">Cronogramas</div>
                     <div className="project-list">
@@ -463,4 +462,30 @@ function App() {
     );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+async function startApp() {
+    console.log("Conexão com Python estabelecida!");
+    
+    try {
+        // 1. Busca os dados reais do arquivo JSON via API do Python
+        const data = await window.pywebview.api.load_data();
+        console.log("Dados carregados com sucesso:", data);
+        
+        // 2. Renderiza o App passando os dados
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App initialData={data} />);
+    } catch (e) {
+        console.error("Erro ao carregar dados iniciais:", e);
+        // Fallback: renderiza vazio se der erro na leitura
+        ReactDOM.createRoot(document.getElementById('root')).render(<App initialData={null} />);
+    }
+}
+
+// O 'pywebviewready' é o evento oficial que o Python dispara quando a ponte está pronta
+window.addEventListener('pywebviewready', () => {
+    startApp();
+});
+
+// Fallback caso o evento já tenha disparado antes do script carregar
+if (window.pywebview && window.pywebview.api) {
+    startApp();
+}

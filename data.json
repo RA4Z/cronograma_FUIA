@@ -1,0 +1,139 @@
+{
+    "projects": [
+        {
+            "id": "3t77mmgc",
+            "tasks": [
+                {
+                    "atividade": "Conexão com base de dados",
+                    "resp": "Gabriel Volles Marinho",
+                    "respColor": "gabriel",
+                    "inicio": "23/03/2026",
+                    "fim": "27/03/2026",
+                    "progress": 100,
+                    "status": "done",
+                    "notes": "",
+                    "id": "mkpgusjj"
+                },
+                {
+                    "atividade": "Segurança/autenticação",
+                    "resp": "Gabriel Volles Marinho",
+                    "respColor": "gabriel",
+                    "inicio": "27/03/2026",
+                    "fim": "08/04/2026",
+                    "progress": 63,
+                    "status": "in-progress",
+                    "notes": "",
+                    "id": "v1nmtlfg"
+                },
+                {
+                    "atividade": "Sistema resposta fornecedores",
+                    "resp": "Gabriel Volles Marinho",
+                    "respColor": "gabriel",
+                    "inicio": "08/04/2026",
+                    "fim": "13/04/2026",
+                    "progress": 20,
+                    "status": "in-progress",
+                    "notes": "",
+                    "id": "pwupj50l"
+                },
+                {
+                    "atividade": "Endpoint interface gerencial",
+                    "resp": "Gabriel Volles Marinho",
+                    "respColor": "gabriel",
+                    "inicio": "13/04/2026",
+                    "fim": "01/05/2026",
+                    "progress": 0,
+                    "status": "pending",
+                    "notes": "",
+                    "id": "1s2q1inr"
+                },
+                {
+                    "atividade": "Interface fornecedores",
+                    "resp": "Robert Aron Zimmermann",
+                    "respColor": "robert",
+                    "inicio": "13/04/2026",
+                    "fim": "01/05/2026",
+                    "progress": 0,
+                    "status": "pending",
+                    "notes": "",
+                    "id": "fpe3713v"
+                },
+                {
+                    "atividade": "Interface gerencial",
+                    "resp": "Robert Aron Zimmermann",
+                    "respColor": "robert",
+                    "inicio": "01/05/2026",
+                    "fim": "19/05/2026",
+                    "progress": 0,
+                    "status": "pending",
+                    "notes": "",
+                    "id": "xak8qv9u"
+                },
+                {
+                    "atividade": "Treinamento IA",
+                    "resp": "Todos",
+                    "respColor": "green",
+                    "inicio": "19/05/2026",
+                    "fim": "20/06/2026",
+                    "progress": 0,
+                    "status": "pending",
+                    "notes": "",
+                    "id": "n8glqqfa"
+                },
+                {
+                    "atividade": "Lançamento FUIA",
+                    "resp": "Todos",
+                    "respColor": "green",
+                    "inicio": "20/06/2026",
+                    "fim": "24/06/2026",
+                    "progress": 0,
+                    "status": "pending",
+                    "notes": "",
+                    "id": "hyo7hhie"
+                }
+            ],
+            "name": "FUIA",
+            "description": "",
+            "color": "green",
+            "members": []
+        }
+    ],
+    "activeProjId": "3t77mmgc",
+    "activity": [
+        {
+            "id": "bz06qvzw",
+            "action": "Etapa atualizada",
+            "detail": "Segurança/autenticação",
+            "color": "gabriel",
+            "time": "2026-03-30T19:34:59.671Z"
+        },
+        {
+            "id": "42db5yq1",
+            "action": "Etapa atualizada",
+            "detail": "Segurança/autenticação",
+            "color": "gabriel",
+            "time": "2026-03-30T19:34:56.464Z"
+        },
+        {
+            "id": "lbbzio5c",
+            "action": "Etapa criada",
+            "detail": "Teste",
+            "color": "gabriel",
+            "time": "2026-03-30T19:34:14.447Z"
+        },
+        {
+            "id": "1c7gj2vs",
+            "action": "Novo projeto criado",
+            "detail": "FUIA",
+            "color": "green",
+            "time": "2026-03-30T19:28:59.190Z"
+        },
+        {
+            "id": "el33naop",
+            "action": "Projeto iniciado",
+            "detail": "FUIA — Plataforma Principal carregado",
+            "color": "gabriel",
+            "time": "2026-03-30T19:28:27.460Z"
+        }
+    ]
+}

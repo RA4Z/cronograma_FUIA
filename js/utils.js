@@ -40,24 +40,20 @@ function calcHealthScore(tasks) {
 
 // ─── LOCAL STORAGE ────────────────────────────────────────────────────────────
 
-function loadState() {
-    try {
-        const s = localStorage.getItem('fuia-v2');
-        return s ? JSON.parse(s) : null;
-    } catch (e) {
-        console.warn("LocalStorage bloqueado pelo navegador.", e);
-        return null;
+async function loadState() {
+    if (window.pywebview && window.pywebview.api) {
+        return await window.pywebview.api.load_data();
     }
+    return null;
 }
 
 function saveState(s) {
-    try {
-        localStorage.setItem('fuia-v2', JSON.stringify(s));
-    } catch (e) {
-        console.error("Não foi possível salvar (Prevenção de Rastreamento ativa):", e);
+    if (window.pywebview && window.pywebview.api) {
+        window.pywebview.api.save_data(s).then(res => {
+            if (res) console.log("Resposta do Python: Salvo!");
+        });
     }
 }
-
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
 
 function newActivity(action, detail, color = 'gabriel') {
