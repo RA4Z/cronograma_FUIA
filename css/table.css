@@ -1,0 +1,163 @@
+/* =====================================================
+   TABLE.CSS — Tabela de Tarefas
+   ===================================================== */
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+thead th {
+    background: var(--table-header-bg);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    padding: var(--sp-md) var(--sp-lg);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+thead th:first-child { padding-left: var(--sp-xl); }
+thead th:last-child  { padding-right: var(--sp-xl); }
+
+tbody tr {
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background-color var(--transition-fast);
+    cursor: default;
+}
+
+tbody tr:hover,
+tbody tr.highlighted {
+    background-color: var(--table-row-hover);
+}
+
+tbody tr:last-child { border-bottom: none; }
+
+tbody tr:nth-child(even) {
+    background-color: var(--table-stripe);
+}
+
+tbody tr:nth-child(even):hover,
+tbody tr:nth-child(even).highlighted {
+    background-color: var(--table-row-hover);
+}
+
+td {
+    padding: 12px var(--sp-lg);
+    vertical-align: middle;
+    color: var(--text-secondary);
+}
+
+td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    padding-left: var(--sp-xl);
+}
+
+td:last-child { padding-right: var(--sp-xl); }
+
+/* Célula de progresso na tabela */
+.td-progress {
+    min-width: 140px;
+}
+
+.table-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-sm);
+}
+
+.table-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--progress-track);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.table-progress-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.5s var(--ease-out);
+}
+
+.table-progress-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Botão Editar Progresso */
+.edit-progress-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    margin-left: var(--sp-xs);
+}
+
+.edit-progress-btn:hover {
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.status-badge::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+}
+
+.status-badge.pending {
+    background: var(--status-pending);
+    color: var(--status-pending-text);
+}
+
+.status-badge.in-progress {
+    background: var(--status-in-progress);
+    color: var(--status-in-progress-text);
+}
+
+.status-badge.done {
+    background: var(--status-done);
+    color: var(--status-done-text);
+}
+
+.status-badge.blocked {
+    background: var(--status-blocked);
+    color: var(--status-blocked-text);
+}

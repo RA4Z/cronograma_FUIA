@@ -1,0 +1,186 @@
+/* =====================================================
+   GANTT.CSS — Gráfico de Gantt
+   ===================================================== */
+
+.gantt-wrapper {
+    overflow-x: auto;
+    padding: var(--sp-xl);
+    padding-top: 3.5rem; /* espaço para os labels de data */
+}
+
+.gantt-chart {
+    min-width: 800px;
+    position: relative;
+    padding-bottom: var(--sp-md);
+}
+
+/* GRADE */
+.grid-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.grid-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--grid-line-color);
+    border: none;
+}
+
+/* EIXO DO TEMPO */
+.timeline-axis {
+    position: relative;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border-color) 5%, var(--border-color) 95%, transparent);
+    margin-bottom: 1.5rem;
+    z-index: 2;
+}
+
+.timeline-tick {
+    position: absolute;
+    top: -7px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tick-dot {
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 3px solid var(--bg-surface);
+    box-shadow: 0 0 0 1px var(--accent);
+    z-index: 3;
+    transition: background-color var(--transition-slow);
+}
+
+.tick-label {
+    position: absolute;
+    bottom: 18px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transform: rotate(-35deg);
+    transform-origin: right bottom;
+    letter-spacing: 0.02em;
+}
+
+/* CONTAINER DE TAREFAS */
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 5;
+}
+
+/* LINHA DE TAREFA */
+.task-row {
+    height: 46px;
+    position: relative;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-base);
+    cursor: default;
+}
+
+.task-row:hover,
+.task-row.highlighted {
+    background-color: var(--highlight-row);
+}
+
+/* BARRA */
+.task-bar {
+    position: absolute;
+    height: 78%;
+    top: 11%;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: visible;
+    box-shadow: var(--bar-shadow);
+    cursor: pointer;
+    transition: transform var(--transition-base), filter var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* TEXTO DA BARRA */
+.task-text-inner {
+    padding: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.task-text-outer {
+    position: absolute;
+    left: calc(100% + 8px);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* HOVER NA BARRA */
+.task-row:hover .task-bar,
+.task-row.highlighted .task-bar {
+    transform: scaleY(1.08) translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    filter: brightness(1.08);
+    z-index: 10;
+}
+
+/* INDICADOR DE PROGRESSO NA BARRA */
+.bar-progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: rgba(255,255,255,0.22);
+    pointer-events: none;
+    transition: width 0.5s var(--ease-out);
+}
+
+.bar-progress-striped {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0,0,0,0.1) 4px,
+        rgba(0,0,0,0.1) 8px
+    );
+    pointer-events: none;
+    border-radius: inherit;
+    transition: width 0.5s var(--ease-out);
+}
+
+/* CORES DAS BARRAS */
+.bg-gabriel {
+    background: linear-gradient(105deg, #4f84ff, #2347c5);
+}
+
+.bg-robert {
+    background: linear-gradient(105deg, #a855f7, #7e22ce);
+}
+
+.bg-todos {
+    background: linear-gradient(105deg, #10b981, #047857);
+}

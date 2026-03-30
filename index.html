@@ -1,53 +1,194 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma do Projeto</title>
-    <!-- Importando a folha de estilos -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Importando a fonte Inter do Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>FUIA — Cronograma do Projeto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/gantt.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="css/progress.css">
+    <link rel="stylesheet" href="css/theme.css">
 </head>
+
 <body>
 
-<div class="container">
-    <header>
-        <h1>Cronograma do Projeto - Fase de Desenvolvimento</h1>
-    </header>
+    <div class="noise-overlay"></div>
 
-    <div class="gantt-wrapper">
-        <div class="gantt-chart" id="ganttChart">
-            <!-- Linhas verticais de grade serão injetadas aqui -->
-            <div class="grid-container" id="gridContainer"></div>
-            
-            <!-- Eixo do tempo com as datas -->
-            <div class="timeline-axis" id="timelineAxis"></div>
-            
-            <!-- Barras das tarefas -->
-            <div class="tasks-container" id="tasksContainer"></div>
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">F</div>
+                <div class="brand-text">
+                    <span class="brand-name">FUIA</span>
+                    <span class="brand-sub">v1.0 · Dev Phase</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="gantt">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="4" rx="1" />
+                        <rect x="3" y="11" width="13" height="4" rx="1" />
+                        <rect x="3" y="18" width="16" height="4" rx="1" />
+                    </svg>
+                    Cronograma
+                </a>
+                <a href="#" class="nav-item" data-view="progress">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 3" />
+                    </svg>
+                    Progresso
+                </a>
+            </nav>
+
+            <div class="sidebar-legend">
+                <p class="legend-title">Responsáveis</p>
+                <div class="legend-item">
+                    <span class="legend-dot gabriel"></span>
+                    <span>Gabriel V. M.</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot robert"></span>
+                    <span>Robert A. Z.</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot todos"></span>
+                    <span>Todos</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="4" />
+                        <path
+                            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <span class="theme-label">Tema</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- HEADER -->
+            <header class="page-header">
+                <div class="header-left">
+                    <p class="header-eyebrow">Fase de Desenvolvimento</p>
+                    <h1 class="header-title">Cronograma do Projeto</h1>
+                </div>
+                <div class="header-stats" id="headerStats">
+                    <!-- Preenchido via JS -->
+                </div>
+            </header>
+
+            <!-- VIEW: GANTT -->
+            <section class="view active" id="view-gantt">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Gráfico de Gantt</h2>
+                        <p class="card-subtitle" id="dateRange">Mar 2026 — Jun 2026</p>
+                    </div>
+                    <div class="gantt-wrapper">
+                        <div class="gantt-chart" id="ganttChart">
+                            <div class="grid-container" id="gridContainer"></div>
+                            <div class="timeline-axis" id="timelineAxis"></div>
+                            <div class="tasks-container" id="tasksContainer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card mt-lg">
+                    <div class="card-header">
+                        <h2 class="card-title">Detalhamento das Tarefas</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Atividade</th>
+                                    <th>Responsável</th>
+                                    <th>Início</th>
+                                    <th>Fim</th>
+                                    <th>Duração</th>
+                                    <th>Progresso</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: PROGRESS -->
+            <section class="view" id="view-progress">
+                <div class="progress-grid" id="progressGrid">
+                    <!-- Preenchido via JS -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL DE PROGRESSO -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Editar Progresso</h3>
+                <button class="modal-close" id="modalClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-task-name" id="modalTaskName"></p>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span>0%</span>
+                        <span id="sliderValue">50%</span>
+                        <span>100%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="progress-slider" id="progressSlider">
+                    <div class="slider-track-fill" id="sliderTrackFill"></div>
+                </div>
+                <div class="modal-status-select">
+                    <label>Status</label>
+                    <div class="status-buttons" id="statusButtons">
+                        <button class="status-btn" data-status="pending">Pendente</button>
+                        <button class="status-btn active" data-status="in-progress">Em Andamento</button>
+                        <button class="status-btn" data-status="done">Concluído</button>
+                        <button class="status-btn" data-status="blocked">Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modalCancel">Cancelar</button>
+                <button class="btn-primary" id="modalSave">Salvar</button>
+            </div>
         </div>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Atividade</th>
-                    <th>Responsável</th>
-                    <th>Início</th>
-                    <th>Fim</th>
-                    <th>Duração</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- Linhas da tabela inseridas via JS -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Importando o script JS no final do body -->
-<script src="script.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/gantt.js"></script>
+    <script src="js/table.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/app.js"></script>
 </body>
+
 </html>
